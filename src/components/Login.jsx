@@ -1,9 +1,13 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-empty */
 import React, { useState, useRef } from "react";
 import Header from "./Header";
 import { checkValidData } from "../utils/validate";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import auth from "../utils/firebase"
 const Login = () => {
   const [isSignIn, setIsSignIn] = useState(true);
-  const [errorMsg,setErrorMsg] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
   const email = useRef(null);
   const pswd = useRef(null);
 
@@ -14,6 +18,24 @@ const Login = () => {
     // console.log(email,pswd);
     const msg = checkValidData(email.current.value, pswd.current.value);
     setErrorMsg(msg);
+    if (msg) {
+      return;
+    }
+    if (!isSignIn) {
+      createUserWithEmailAndPassword(auth, email.current.value, pswd.current.value)
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+          console.log(user);
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          // ..
+        });
+    } else {
+    }
   };
   return (
     <div className="relative h-screen w-screen">
@@ -25,7 +47,10 @@ const Login = () => {
         alt="bg"
       />
       {/* </div> */}
-      <form className="absolute w-96 p-12 bg-black/60 my-36 mx-auto right-0 left-0 flex flex-col space-y-4" onSubmit={(e)=>e.preventDefault()}>
+      <form
+        className="absolute w-96 p-12 bg-black/60 my-36 mx-auto right-0 left-0 flex flex-col space-y-4"
+        onSubmit={(e) => e.preventDefault()}
+      >
         <h1 className="font-bold text-3xl py-4 text-white">
           {isSignIn ? "Sign In" : "Sign Up"}
         </h1>
